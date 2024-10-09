@@ -1,0 +1,45 @@
+services:
+  toolbox:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/workspace
+      - pipx-packages:/home/wanderer/.local/pipx/venvs
+    environment:
+      USERNAME: wanderer
+      USER_UID: 1000
+      USER_GID: 1000
+      HOME: /home/wanderer
+      PATH: /home/wanderer/.local/bin:/usr/local/bin:$PATH
+    tty: true
+    stdin_open: true
+    networks:
+      - toolbox-net
+    command: zsh
+
+  falco:
+    extends:
+      file: falco-compose.yml
+      service: falco
+  falco-sidekick:
+    extends:
+      file: falco-compose.yml
+      service: falco-sidekick
+  falco-webui:
+    extends:
+      file: falco-compose.yml
+      service: falco-webui
+    ports:
+      - "2802:2802"
+  falco-redis:
+    extends:
+      file: falco-compose.yml
+      service: falco-redis
+
+volumes:
+  pipx-packages:
+
+networks:
+  toolbox-net:
+    driver: bridge
